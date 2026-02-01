@@ -1,4 +1,4 @@
-import { Effect } from "effect";
+import { Effect, Option } from "effect";
 
 export default class UserStore extends Effect.Service<UserStore>()(
   "effectful/index/UserStore",
@@ -9,7 +9,11 @@ export default class UserStore extends Effect.Service<UserStore>()(
           Effect.gen(function* () {
             yield* Effect.log(`Looking up user for token: ${token}`);
 
-            return { id: "123", name: "John Doe" };
+            if (token === "abd123") {
+              return Option.some({ id: "123", name: "John Doe" });
+            }
+
+            return Option.none();
           }),
       };
     }),

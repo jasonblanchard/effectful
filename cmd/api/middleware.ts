@@ -1,5 +1,10 @@
-import { Effect, Layer, Redacted } from "effect";
-import { Authorization, CustomMiddleware, User } from "./spec";
+import { Effect, Layer, Redacted, Option } from "effect";
+import {
+  Authorization,
+  CustomMiddleware,
+  UnauthorizedError,
+  User,
+} from "./spec";
 import { HttpServerRequest, HttpApiError } from "@effect/platform";
 import UserStore from "../../lib/userStore";
 
@@ -34,12 +39,18 @@ export const AuthorizationLive = Layer.effect(
           );
 
           if (!Redacted.value(bearerToken)) {
-            return yield* Effect.fail(new HttpApiError.Unauthorized());
+            return yield* Effect.fail(new UnauthorizedError());
           }
 
-          const user = yield* userStore.getUserByToken({
+          const maybeUser = yield* userStore.getUserByToken({
             token: Redacted.value(bearerToken),
           });
+
+          if (Option.isNone(maybeUser)) {
+            return yield* Effect.fail(new UnauthorizedError());
+          }
+
+          const user = maybeUser.value;
 
           // Return a mock User object as the CurrentUser
           return new User({ id: user.id, name: user.name });
