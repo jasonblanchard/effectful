@@ -3,6 +3,9 @@
   "module": "index.ts",
   "type": "module",
   "private": true,
+  "scripts": {
+    "typecheck": "bunx tsc --noEmit"
+  },
   "devDependencies": {
     "@effect/language-service": "^0.72.0",
     "@types/bun": "latest"
