@@ -52,6 +52,10 @@ export const AuthorizationLive = Layer.effect(
 
           const user = maybeUser.value;
 
+          // Annotate the current span and logs with the authenticated user ID
+          yield* Effect.annotateCurrentSpan("user.id", user.id);
+          yield* Effect.annotateLogsScoped("user.id", user.id);
+
           // Return a mock User object as the CurrentUser
           return new User({ id: user.id, name: user.name });
         }),
