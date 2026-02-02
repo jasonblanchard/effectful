@@ -2,6 +2,7 @@ import { Effect, Layer, Redacted, Option } from "effect";
 import {
   Authorization,
   CustomMiddleware,
+  LegacyCurrentUser,
   UnauthorizedError,
   User,
 } from "./spec";
@@ -33,6 +34,28 @@ export const AuthorizationLive = Layer.effect(
       // The Bearer token is redacted for security
       bearer: (bearerToken) =>
         Effect.gen(function* () {
+          const maybeLegacyUser =
+            yield* Effect.serviceOption(LegacyCurrentUser);
+
+          if (Option.isSome(maybeLegacyUser)) {
+            yield* Effect.log("Using legacy user");
+
+            // Annotate the current span and logs with the authenticated user ID
+            yield* Effect.annotateCurrentSpan(
+              "user.id",
+              maybeLegacyUser.value.id,
+            );
+            yield* Effect.annotateLogsScoped(
+              "user.id",
+              maybeLegacyUser.value.id,
+            );
+
+            return new User({
+              id: maybeLegacyUser.value.id,
+              name: maybeLegacyUser.value.name,
+            });
+          }
+
           yield* Effect.log(
             "checking bearer token",
             Redacted.value(bearerToken),
