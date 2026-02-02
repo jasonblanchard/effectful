@@ -2,11 +2,10 @@ import {
   HttpApiEndpoint,
   HttpApi,
   HttpApiGroup,
-  HttpApiError,
   HttpApiMiddleware,
   HttpApiSecurity,
 } from "@effect/platform";
-import { Schema, Context, Effect } from "effect";
+import { Schema, Context } from "effect";
 
 export class UnknownError extends Schema.TaggedError<UnknownError>()(
   "UnknownError",
@@ -50,6 +49,15 @@ export class CustomMiddleware extends HttpApiMiddleware.Tag<CustomMiddleware>()(
 export const api = HttpApi.make("Effectful").add(
   HttpApiGroup.make("Root")
     .add(HttpApiEndpoint.get("getMe")`/me`.addSuccess(User))
+    .add(
+      HttpApiEndpoint.post("updateProfile", "/profile")
+        .setPayload(
+          Schema.Struct({
+            name: Schema.String,
+          }),
+        )
+        .addSuccess(User),
+    )
 
     .addError(UnknownError, { status: 500 })
     .addError(UnauthorizedError, { status: 401 })

@@ -15,6 +15,16 @@ export default class UserStore extends Effect.Service<UserStore>()(
 
             return Option.none();
           }),
+        updateProfile: ({ id, name }: { id: string; name: string }) =>
+          Effect.gen(function* () {
+            yield* Effect.log(
+              `Updating profile for user ${id} with name: ${name} in the database`,
+            );
+
+            // In a real app, this would update the database
+            // For now, just return the updated user
+            return { id, name };
+          }),
       };
     }),
   },

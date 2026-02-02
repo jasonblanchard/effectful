@@ -4,7 +4,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "typecheck": "bunx tsc --noEmit"
+    "typecheck": "bunx tsc --noEmit",
+    "api": "bun run --watch cmd/api/index.ts"
   },
   "devDependencies": {
     "@effect/language-service": "^0.72.0",
