@@ -27,6 +27,11 @@ export class CurrentUser extends Context.Tag("CurrentUser")<
   User
 >() {}
 
+export class LegacyCurrentUser extends Context.Tag("LegacyCurrentUser")<
+  LegacyCurrentUser,
+  User
+>() {}
+
 // Create the Authorization middleware
 export class Authorization extends HttpApiMiddleware.Tag<Authorization>()(
   "Authorization",

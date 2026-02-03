@@ -5,11 +5,13 @@
   "private": true,
   "scripts": {
     "typecheck": "bunx tsc --noEmit",
-    "api": "bun run --watch cmd/api/index.ts"
+    "api": "bun run --watch cmd/api/index.ts",
+    "api:express": "bun run --watch cmd/api/express.ts"
   },
   "devDependencies": {
     "@effect/language-service": "^0.72.0",
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/express": "^5.0.6"
   },
   "peerDependencies": {
     "typescript": "^5"
@@ -20,6 +22,7 @@
     "@effect/platform-bun": "^0.87.1",
     "@opentelemetry/exporter-trace-otlp-http": "^0.211.0",
     "@opentelemetry/sdk-trace-base": "^2.5.0",
-    "effect": "^3.19.15"
+    "effect": "^3.19.15",
+    "express": "^5.2.1"
   }
 }

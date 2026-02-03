@@ -1,5 +1,5 @@
 import { HttpApiBuilder } from "@effect/platform";
-import { api, CurrentUser, User } from "./spec";
+import { api, CurrentUser, LegacyCurrentUser, User } from "./spec";
 import { Effect } from "effect";
 import UserStore from "../../lib/userStore";
 
