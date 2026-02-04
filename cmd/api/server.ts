@@ -4,33 +4,35 @@ import {
   HttpMiddleware,
 } from "@effect/platform";
 import { BunHttpServer } from "@effect/platform-bun";
-import { NodeSdk } from "@effect/opentelemetry";
-import {
-  ConsoleSpanExporter,
-  BatchSpanProcessor,
-} from "@opentelemetry/sdk-trace-base";
-import { api, Authorization, User } from "./spec";
+// import { NodeSdk } from "@effect/opentelemetry";
+// import {
+//   ConsoleSpanExporter,
+//   BatchSpanProcessor,
+// } from "@opentelemetry/sdk-trace-base";
+import { api } from "./spec";
 import { Layer, Effect, Logger } from "effect";
 import { RootLive } from "./handlers";
 import UserStore from "../../lib/userStore";
 import { CustomMiddlewareLive, AuthorizationLive } from "./middleware";
 
-const ApiLive = HttpApiBuilder.api(api).pipe(Layer.provide(RootLive));
+const ApiLive = HttpApiBuilder.api(api).pipe(
+  Layer.provide(RootLive),
+  Layer.provide(AuthorizationLive),
+  Layer.provide(CustomMiddlewareLive),
+  Layer.provide(UserStore.Default),
+  Layer.provide(Logger.pretty),
+);
 
 // Configure tracing layer
-const TracingLive = NodeSdk.layer(() => ({
-  resource: { serviceName: "effectful-api" },
-  spanProcessor: new BatchSpanProcessor(new ConsoleSpanExporter()),
-}));
+// const TracingLive = NodeSdk.layer(() => ({
+//   resource: { serviceName: "effectful-api" },
+//   spanProcessor: new BatchSpanProcessor(new ConsoleSpanExporter()),
+// }));
 
 // Build the HttpApp Layer (without the BunHttpServer)
 const HttpLive = HttpApiBuilder.serve(HttpMiddleware.logger).pipe(
   Layer.provide(HttpApiSwagger.layer({ path: "/spec" })),
   Layer.provide(ApiLive),
-  Layer.provide(AuthorizationLive),
-  Layer.provide(CustomMiddlewareLive),
-  Layer.provide(UserStore.Default),
-  Layer.provide(Logger.pretty),
   Layer.provide(Logger.remove(Logger.prettyLoggerDefault)),
 );
 
@@ -43,15 +45,7 @@ export const ServerLive = HttpLive.pipe(
 );
 
 // For Web Handler - merge ApiLive with the server context at the top level
-const WebHandlerLive = Layer.mergeAll(
-  ApiLive.pipe(
-    Layer.provide(AuthorizationLive),
-    Layer.provide(CustomMiddlewareLive),
-    Layer.provide(UserStore.Default),
-    Layer.provide(Logger.pretty),
-  ),
-  BunHttpServer.layerContext,
-);
+const WebHandlerLive = Layer.mergeAll(ApiLive, BunHttpServer.layerContext);
 
 export const webhandler = HttpApiBuilder.toWebHandler(WebHandlerLive, {
   middleware: (httpApp) => HttpMiddleware.logger(httpApp),

@@ -5,7 +5,7 @@ import { LegacyCurrentUser, User } from "./spec";
 
 const app = express();
 
-app.use(express.json());
+app.use(express.raw({ type: "*/*" }));
 
 app.get("/", (req: Request, res: Response) => {
   res.json({ message: "Hello, world!" });
@@ -23,10 +23,8 @@ app.use(async (req, res) => {
   // Create Web API Request from Express request
   const webRequest = new Request(url, {
     method: req.method,
-    headers: req.headers as Record<string, string>,
-    body: ["GET", "HEAD"].includes(req.method)
-      ? undefined
-      : JSON.stringify(req.body),
+    headers: req.headers as Record<string, string | string[]>,
+    body: req.body,
   });
 
   // Call the Effect handler
